@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROUD TOOLS – Classroom Creator AI | ProudEducator</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: '#1E3A8A',     // Azul Institucional
+              sky: '#0284C7',      // Azul Cielo
+              teal: '#0D9488',     // Verde Turquesa
+              coral: '#F43F5E',    // Coral
+              lavender: '#8B5CF6'  // Lavanda Acento
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- jsPDF & Canvas Confetti -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.95; transform: scale(0.99); }
+    }
+    .animate-pulse-subtle { animation: pulse-subtle 3s infinite ease-in-out; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- ENCABEZADO PRINCIPAL -->
+  <header class="bg-gradient-to-r from-brand-navy via-brand-sky to-brand-teal text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('dashboard')">
+        <div class="bg-white p-2 rounded-xl text-brand-navy shadow-md">
+          <i data-lucide="sparkles" class="w-7 h-7 text-brand-teal"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-black text-xl tracking-wider">PROUD TOOLS</span>
+            <span class="bg-brand-coral/90 text-white text-xs px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">AI Studio</span>
+          </div>
+          <p class="text-xs text-sky-100 font-medium">CLASSROOM CREATOR AI &bull; <span class="italic">"Your AI-powered teaching resource studio"</span></p>
+        </div>
+      </div>
+      
+      <!-- Navegación Superior -->
+      <nav class="flex items-center space-x-2 sm:space-x-4">
+        <button onclick="navigateTo('dashboard')" class="px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-white/10 transition flex items-center gap-1.5">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+        </button>
+        <button onclick="navigateTo('library')" class="px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-white/10 transition flex items-center gap-1.5">
+          <i data-lucide="folder-heart" class="w-4 h-4"></i> Mi Biblioteca
+          <span id="library-badge" class="bg-brand-lavender text-white text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ALERTA GLOBAL DE ESTADO / MENSAJES -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md"></div>
+
+    <!-- ========================================== -->
+    <!-- VISTA 1: DASHBOARD DE BIENVENIDA -->
+    <!-- ========================================== -->
+    <section id="view-dashboard" class="space-y-8">
+      
+      <!-- Banner de Bienvenida -->
+      <div class="bg-gradient-to-br from-indigo-900 via-brand-navy to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-brand-teal/20 rounded-full blur-3xl"></div>
+        <div class="absolute right-1/3 -top-10 w-64 h-64 bg-brand-lavender/20 rounded-full blur-3xl"></div>
+        
+        <div class="relative z-10 max-w-3xl space-y-4">
+          <div class="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-xs text-teal-200 font-semibold">
+            <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+            <span>¡Bienvenido a tu laboratorio de creatividad docente!</span>
+          </div>
+          <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+            ¡Hola, docente creativo! 👋
+          </h1>
+          <p class="text-lg text-slate-200 font-normal leading-relaxed">
+            Aquí puedes transformar tus ideas en experiencias de aprendizaje. Crea juegos, diseña estaciones, desarrolla fichas interactivas y prepara inicios de clase que despierten la curiosidad de tus estudiantes.
+          </p>
+          <div class="pt-2 flex flex-wrap gap-4 items-center text-sm font-medium text-slate-300">
+            <span class="flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4 text-brand-sky"></i> Menos tiempo diseñando desde cero</span>
+            <span class="flex items-center gap-1.5"><i data-lucide="target" class="w-4 h-4 text-brand-teal"></i> Más tiempo enseñando con propósito</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pregunta Guía -->
+      <div>
+        <h2 class="text-2xl font-bold text-slate-900">¿Qué experiencia de aprendizaje quieres crear hoy?</h2>
+        <p class="text-sm text-slate-500">Selecciona uno de los cuatro módulos pedagógicos impulsados por IA.</p>
+      </div>
+
+      <!-- Tarjetas de Módulos -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Módulo 1: Game Lab -->
+        <div class="glass-card rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition transform hover:-translate-y-1 border-t-4 border-brand-coral group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-rose-100 text-brand-coral flex items-center justify-center mb-4 group-hover:scale-110 transition">
+              <i data-lucide="gamepad-2" class="w-8 h-8"></i>
+            </div>
+            <span class="text-xs font-extrabold uppercase tracking-widest text-brand-coral">Módulo 01</span>
+            <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">GAME LAB</h3>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6">
+              Diseña juegos educativos interactivas o imprimibles para aprender jugando.
+            </p>
+          </div>
+          <button onclick="startModule('gamelab')" class="w-full py-3 px-4 bg-brand-coral hover:bg-rose-600 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+            <span>Crear juego</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Módulo 2: Learning Stations -->
+        <div class="glass-card rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition transform hover:-translate-y-1 border-t-4 border-brand-teal group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-teal-100 text-brand-teal flex items-center justify-center mb-4 group-hover:scale-110 transition">
+              <i data-lucide="layout-grid" class="w-8 h-8"></i>
+            </div>
+            <span class="text-xs font-extrabold uppercase tracking-widest text-brand-teal">Módulo 02</span>
+            <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">LEARNING STATIONS</h3>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6">
+              Organiza experiencias de aprendizaje diferenciadas por estaciones rotativas.
+            </p>
+          </div>
+          <button onclick="startModule('stations')" class="w-full py-3 px-4 bg-brand-teal hover:bg-teal-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+            <span>Diseñar estaciones</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Módulo 3: Interactive Worksheets -->
+        <div class="glass-card rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition transform hover:-translate-y-1 border-t-4 border-brand-sky group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-sky-100 text-brand-sky flex items-center justify-center mb-4 group-hover:scale-110 transition">
+              <i data-lucide="file-check" class="w-8 h-8"></i>
+            </div>
+            <span class="text-xs font-extrabold uppercase tracking-widest text-brand-sky">Módulo 03</span>
+            <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">INTERACTIVE WORKSHEETS</h3>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6">
+              Crea fichas de trabajo atractivas, editables e interactivas con auto-corrección.
+            </p>
+          </div>
+          <button onclick="startModule('worksheets')" class="w-full py-3 px-4 bg-brand-sky hover:bg-sky-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+            <span>Crear ficha</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Módulo 4: Lesson Starter -->
+        <div class="glass-card rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl transition transform hover:-translate-y-1 border-t-4 border-brand-lavender group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-purple-100 text-brand-lavender flex items-center justify-center mb-4 group-hover:scale-110 transition">
+              <i data-lucide="presentation" class="w-8 h-8"></i>
+            </div>
+            <span class="text-xs font-extrabold uppercase tracking-widest text-brand-lavender">Módulo 04</span>
+            <h3 class="text-xl font-bold text-slate-900 mt-1 mb-2">LESSON STARTER</h3>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6">
+              Diseña presentaciones de 5-7 diapositivas para enganchar al inicio de la clase.
+            </p>
+          </div>
+          <button onclick="startModule('starter')" class="w-full py-3 px-4 bg-brand-lavender hover:bg-purple-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+            <span>Iniciar clase</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VISTA 2: FORMULARIO CONFIGURADOR -->
+    <!-- ========================================== -->
+    <section id="view-creator" class="hidden space-y-6">
+      
+      <!-- Regresar & Título de Módulo -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+        <button onclick="navigateTo('dashboard')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-xl text-xs font-bold text-slate-700 transition flex items-center gap-2">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver al Dashboard
+        </button>
+        <div id="module-title-header" class="text-right">
+          <!-- Dinámico -->
+        </div>
+      </div>
+
+      <!-- Formulario Multi-pasos -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200">
+        <form id="resource-config-form" onsubmit="handleFormSubmit(event)">
+          
+          <!-- PASO A: INFORMACIÓN DE LA CLASE -->
+          <div class="space-y-6 mb-8">
+            <div class="flex items-center space-x-3 text-brand-navy font-bold text-lg border-b pb-2">
+              <span class="w-8 h-8 rounded-full bg-brand-navy text-white flex items-center justify-center text-sm">A</span>
+              <h2>Información General de la Clase</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Asignatura o Área *</label>
+                <input type="text" id="cfg-subject" required placeholder="Ej: Matemáticas, Ciencias, Historia..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Tema Específico *</label>
+                <input type="text" id="cfg-topic" required placeholder="Ej: La fotosíntesis, Ecuaciones de 1er grado..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nivel Educativo *</label>
+                <select id="cfg-level" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+                  <option value="Educación Inicial">Educación Inicial (Prescolar)</option>
+                  <option value="Primaria">Primaria</option>
+                  <option value="Secundaria" selected>Secundaria</option>
+                  <option value="Bachillerato">Bachillerato / Preparatoria</option>
+                  <option value="Educación Universitaria">Educación Universitaria</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Grado o Edad de Estudiantes</label>
+                <input type="text" id="cfg-grade" placeholder="Ej: 3er Grado (8-9 años)" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Cant. de Estudiantes</label>
+                <input type="number" id="cfg-count" value="25" min="1" max="200" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Duración Estimada (min)</label>
+                <input type="number" id="cfg-duration" value="45" min="5" max="180" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Idioma del Recurso</label>
+                <select id="cfg-language" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+                  <option value="Español" selected>Español</option>
+                  <option value="Inglés">Inglés</option>
+                  <option value="Portugués">Portugués</option>
+                  <option value="Francés">Francés</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- PASO B: OBJETIVO Y METODOLOGÍA -->
+          <div class="space-y-6 mb-8">
+            <div class="flex items-center space-x-3 text-brand-navy font-bold text-lg border-b pb-2">
+              <span class="w-8 h-8 rounded-full bg-brand-navy text-white flex items-center justify-center text-sm">B</span>
+              <h2>Objetivo Pedagógico y Adaptación</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Intención Pedagógica Principal</label>
+                <select id="cfg-intent" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+                  <option value="Activar conocimientos previos">Activar conocimientos previos</option>
+                  <option value="Introducir un contenido nuevo">Introducir un contenido nuevo</option>
+                  <option value="Reforzar aprendizajes" selected>Reforzar aprendizajes</option>
+                  <option value="Practicar habilidades">Practicar habilidades</option>
+                  <option value="Evaluar conocimientos">Evaluar conocimientos</option>
+                  <option value="Promover pensamiento crítico">Promover pensamiento crítico</option>
+                  <option value="Fomentar colaboración">Fomentar colaboración</option>
+                  <option value="Desarrollar creatividad">Desarrollar creatividad</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Objetivo de Aprendizaje Específico (Opcional)</label>
+                <input type="text" id="cfg-custom-goal" placeholder="Ej: Que los alumnos identifiquen las 3 fases principales..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nivel de Dificultad</label>
+                <select id="cfg-difficulty" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+                  <option value="Básico">Básico</option>
+                  <option value="Intermedio" selected>Intermedio</option>
+                  <option value="Avanzado">Avanzado</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Modalidad de Trabajo</label>
+                <select id="cfg-grouping" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+                  <option value="Individual">Individual</option>
+                  <option value="Parejas">Parejas</option>
+                  <option value="Equipos" selected>Equipos</option>
+                  <option value="Grupo Completo">Grupo Completo</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Recursos en el Aula</label>
+                <select id="cfg-resources" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+                  <option value="Analógico (Papel, lápices, tarjetas)">Analógico (Papel y lápiz)</option>
+                  <option value="Digital (Dispositivos o internet)">Digital (Dispositivos / Internet)</option>
+                  <option value="Híbrido (Proyector + Papel)" selected>Híbrido (Proyector + Papel)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- PASO C: OPCIONES ESPECÍFICAS DE MÓDULO -->
+          <div class="space-y-6 mb-8 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+            <div class="flex items-center space-x-3 text-brand-navy font-bold text-lg border-b pb-2">
+              <span class="w-8 h-8 rounded-full bg-brand-teal text-white flex items-center justify-center text-sm">C</span>
+              <h2 id="module-specific-title">Configuración del Formato</h2>
+            </div>
+            
+            <div id="module-specific-options">
+              <!-- Contenido inyectado dinámicamente según el módulo seleccionado -->
+            </div>
+          </div>
+
+          <!-- BOTÓN GENERAR -->
+          <div class="pt-4 flex justify-end">
+            <button type="submit" id="btn-generate-ai" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-brand-teal via-brand-sky to-brand-navy hover:opacity-95 text-white font-extrabold text-base rounded-2xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center justify-center gap-3">
+              <i data-lucide="sparkles" class="w-6 h-6 text-yellow-300 animate-spin"></i>
+              <span>GENERAR MI RECURSO CON IA</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VISTA 3: LOADER / GENERANDO -->
+    <!-- ========================================== -->
+    <section id="view-loading" class="hidden my-16 text-center space-y-6">
+      <div class="inline-block p-4 bg-white rounded-full shadow-xl">
+        <div class="w-20 h-20 border-4 border-brand-teal border-t-transparent rounded-full animate-spin flex items-center justify-center">
+          <i data-lucide="brain-circuit" class="w-10 h-10 text-brand-navy animate-pulse"></i>
+        </div>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-slate-900">Diseñando experiencia pedagógica...</h2>
+        <p class="text-slate-500 text-sm max-w-md mx-auto mt-2" id="loading-status-text">
+          Gemini AI está aplicando metodologías activas y adaptando los contenidos para tu grupo.
+        </p>
+      </div>
+      <div class="w-full max-w-xs mx-auto bg-slate-200 h-2 rounded-full overflow-hidden">
+        <div class="bg-gradient-to-r from-brand-teal to-brand-sky h-full w-2/3 animate-pulse"></div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VISTA 4: RESULTADO Y EDICIÓN -->
+    <!-- ========================================== -->
+    <section id="view-result" class="hidden space-y-6">
+      
+      <!-- Barra de Acciones del Recurso Generado -->
+      <div class="bg-white p-4 rounded-2xl shadow-md border border-slate-200 flex flex-wrap justify-between items-center gap-3">
+        <div class="flex items-center space-x-3">
+          <span id="res-badge-type" class="px-3 py-1 rounded-full text-xs font-black uppercase text-white bg-brand-navy">
+            RECURSO
+          </span>
+          <h2 id="res-title-display" class="font-bold text-slate-900 text-lg">Título del Recurso Generado</h2>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="editResourceText()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i data-lucide="edit-3" class="w-4 h-4"></i> Editar
+          </button>
+          <button onclick="regenerateResource()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Regenerar
+          </button>
+          <button onclick="differentiateResource()" class="px-3 py-2 bg-purple-50 hover:bg-purple-100 text-brand-lavender border border-purple-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i data-lucide="git-fork" class="w-4 h-4"></i> Diferenciar (+/- Dificultad)
+          </button>
+          <button onclick="saveToLibrary()" class="px-3 py-2 bg-teal-50 hover:bg-teal-100 text-brand-teal border border-teal-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <i data-lucide="bookmark" class="w-4 h-4"></i> Guardar
+          </button>
+          <button onclick="exportToPDF()" class="px-4 py-2 bg-brand-navy hover:bg-blue-900 text-white rounded-xl text-xs font-bold shadow transition flex items-center gap-1.5">
+            <i data-lucide="download" class="w-4 h-4"></i> Exportar PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Pestañas de Vista (Previsualización Interactiva / Guía Docente) -->
+      <div class="flex border-b border-slate-200 space-x-4">
+        <button id="tab-interactive-btn" onclick="switchResultTab('interactive')" class="py-3 px-4 text-sm font-bold border-b-2 border-brand-teal text-brand-teal flex items-center gap-2">
+          <i data-lucide="play-circle" class="w-4 h-4"></i> Vista Previa Interactiva / Alumno
+        </button>
+        <button id="tab-teacher-btn" onclick="switchResultTab('teacher')" class="py-3 px-4 text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2">
+          <i data-lucide="graduation-cap" class="w-4 h-4"></i> Teacher Guide (Guía Docente)
+        </button>
+      </div>
+
+      <!-- CONTENIDO DE LA PREVISUALIZACIÓN INTERACTIVA -->
+      <div id="tab-interactive-content" class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200 min-h-[400px]">
+        <!-- Inyectado dinámicamente según el módulo (Ruleta, Trivia, Estaciones, Slides, Ficha) -->
+      </div>
+
+      <!-- CONTENIDO DE LA GUÍA DOCENTE -->
+      <div id="tab-teacher-content" class="hidden bg-slate-900 text-slate-100 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <h3 class="text-xl font-bold text-teal-400 flex items-center gap-2">
+            <i data-lucide="compass" class="w-6 h-6"></i> Orientaciones Pedagógicas y Planificación
+          </h3>
+          <span class="text-xs bg-slate-800 px-3 py-1 rounded-full text-slate-400 font-mono">ProudEducator Standard</span>
+        </div>
+        
+        <div id="teacher-guide-details" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-300">
+          <!-- Inyectado dinámicamente -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VISTA 5: BIBLIOTECA DE RECURSOS -->
+    <!-- ========================================== -->
+    <section id="view-library" class="hidden space-y-6">
+      <div class="flex flex-wrap justify-between items-center gap-4 pb-4 border-b border-slate-200">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">MY RESOURCE LIBRARY</h2>
+          <p class="text-xs text-slate-500">Recursos didácticos guardados localmente en tu navegador.</p>
+        </div>
+        
+        <div class="flex items-center space-x-3 w-full sm:w-auto">
+          <input type="text" id="library-search" oninput="filterLibrary()" placeholder="Buscar por tema o asignatura..." class="px-4 py-2 text-sm rounded-xl border border-slate-300 w-full sm:w-64 focus:outline-none">
+          <button onclick="clearLibrary()" class="px-3 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-bold transition">
+            Vaciar
+          </button>
+        </div>
+      </div>
+
+      <div id="library-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Renderizado dinámico de tarjetas guardadas -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PIE DE PÁGINA CON FIRMA DE MARCA -->
+  <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 mt-12">
+    <div class="max-w-7xl mx-auto px-4 text-center space-y-3">
+      <div class="flex items-center justify-center space-x-2 text-white font-bold text-lg">
+        <i data-lucide="sparkles" class="w-5 h-5 text-brand-teal"></i>
+        <span>PROUD TOOLS</span>
+      </div>
+      <p class="text-xs text-slate-400 max-w-md mx-auto">
+        Desarrollado para la comunidad educativa global. Transformando el aprendizaje con inteligencia pedagógica.
+      </p>
+      <div class="pt-2 text-xs font-semibold text-slate-300 border-t border-slate-800/80 inline-block px-6">
+        ProudEducator | Dirección: Evelin Peña Jerez &bull; Educación con propósito.
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- LÓGICA JAVASCRIPT APLICACIÓN -->
+  <!-- ========================================== -->
+  <script>
+    // ESTADO GLOBAL DE LA APLICACIÓN
+    const state = {
+      activeModule: null, // 'gamelab', 'stations', 'worksheets', 'starter'
+      currentFormData: null,
+      generatedResource: null,
+      library: JSON.parse(localStorage.getItem('proud_tools_library') || '[]')
+    };
+
+    // INICIALIZACIÓN AL CARGAR
+    window.onload = function() {
+      lucide.createIcons();
+      updateLibraryBadge();
+    };
+
+    // NAVEGACIÓN ENTRE VISTAS
+    function navigateTo(viewId) {
+      document.getElementById('view-dashboard').classList.add('hidden');
+      document.getElementById('view-creator').classList.add('hidden');
+      document.getElementById('view-loading').classList.add('hidden');
+      document.getElementById('view-result').classList.add('hidden');
+      document.getElementById('view-library').classList.add('hidden');
+
+      if (viewId === 'dashboard') {
+        document.getElementById('view-dashboard').classList.remove('hidden');
+      } else if (viewId === 'creator') {
+        document.getElementById('view-creator').classList.remove('hidden');
+      } else if (viewId === 'result') {
+        document.getElementById('view-result').classList.remove('hidden');
+      } else if (viewId === 'library') {
+        renderLibrary();
+        document.getElementById('view-library').classList.remove('hidden');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // INICIAR MÓDULO ESPECÍFICO
+    function startModule(moduleId) {
+      state.activeModule = moduleId;
+      
+      const titleHeader = document.getElementById('module-title-header');
+      const specificTitle = document.getElementById('module-specific-title');
+      const specificOptions = document.getElementById('module-specific-options');
+
+      if (moduleId === 'gamelab') {
+        titleHeader.innerHTML = `<span class="text-xs font-bold text-brand-coral uppercase tracking-widest">Módulo 01</span><h2 class="text-xl font-black text-slate-900">GAME LAB</h2>`;
+        specificTitle.innerText = "Formato de Juego Educativo";
+        specificOptions.innerHTML = `
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Mecánica o Tipo de Juego</label>
+            <select id="cfg-game-type" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-coral focus:outline-none text-sm">
+              <option value="Trivia / Concurso de preguntas">Trivia / Concurso de preguntas</option>
+              <option value="Ruleta de preguntas">Ruleta de preguntas interactiva</option>
+              <option value="Memory Game (Memorama)">Memory Game (Memorama de conceptos)</option>
+              <option value="Verdadero o Falso">Desafío de Verdadero o Falso</option>
+              <option value="Escape Room">Escape Room / Desafío por etapas</option>
+              <option value="Adivina el concepto">Adivina el concepto / Pistas</option>
+            </select>
+          </div>
+        `;
+      } else if (moduleId === 'stations') {
+        titleHeader.innerHTML = `<span class="text-xs font-bold text-brand-teal uppercase tracking-widest">Módulo 02</span><h2 class="text-xl font-black text-slate-900">LEARNING STATIONS</h2>`;
+        specificTitle.innerText = "Configuración de Estaciones de Aprendizaje";
+        specificOptions.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Número de Estaciones</label>
+              <select id="cfg-station-count" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-teal focus:outline-none text-sm">
+                <option value="3">3 Estaciones</option>
+                <option value="4" selected>4 Estaciones</option>
+                <option value="5">5 Estaciones</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Rotación</label>
+              <select id="cfg-station-rotation" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-teal focus:outline-none text-sm">
+                <option value="Rotación grupal por tiempo">Rotación grupal por tiempo</option>
+                <option value="Trabajo simultáneo libre">Trabajo simultáneo libre</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Modalidad</label>
+              <select id="cfg-station-mode" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-teal focus:outline-none text-sm">
+                <option value="Analógica (Física)">Analógica (Física)</option>
+                <option value="Híbrida / Combinada" selected>Híbrida / Combinada</option>
+              </select>
+            </div>
+          </div>
+        `;
+      } else if (moduleId === 'worksheets') {
+        titleHeader.innerHTML = `<span class="text-xs font-bold text-brand-sky uppercase tracking-widest">Módulo 03</span><h2 class="text-xl font-black text-slate-900">INTERACTIVE WORKSHEETS</h2>`;
+        specificTitle.innerText = "Formato de Ficha de Trabajo";
+        specificOptions.innerHTML = `
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tipo de Actividad Principal</label>
+            <select id="cfg-worksheet-type" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-sky focus:outline-none text-sm">
+              <option value="Relacionar columnas / Asociación">Relacionar columnas / Asociación</option>
+              <option value="Completar espacios en blanco">Completar espacios en blanco</option>
+              <option value="Selección múltiple con justificación">Selección múltiple con justificación</option>
+              <option value="Comprensión lectora y análisis">Comprensión lectora y análisis</option>
+              <option value="Clasificación de información">Clasificación de conceptos en categorías</option>
+            </select>
+          </div>
+        `;
+      } else if (moduleId === 'starter') {
+        titleHeader.innerHTML = `<span class="text-xs font-bold text-brand-lavender uppercase tracking-widest">Módulo 04</span><h2 class="text-xl font-black text-slate-900">LESSON STARTER</h2>`;
+        specificTitle.innerText = "Estilo de Inicio de Clase";
+        specificOptions.innerHTML = `
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Estrategia de Enganche Inicial</label>
+            <select id="cfg-starter-type" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-lavender focus:outline-none text-sm">
+              <option value="Pregunta Provocadora / Debate">Pregunta Provocadora / Debate inicial</option>
+              <option value="Situación Problema del mundo real">Situación Problema del mundo real</option>
+              <option value="Mito o Realidad">Desafío: ¿Mito o Realidad?</option>
+              <option value="¿Qué pasaría si... ?">Escenario "What If" (¿Qué pasaría si...?)</option>
+              <option value="Adivina el concepto misterioso">Adivina el concepto misterioso</option>
+            </select>
+          </div>
+        `;
+      }
+
+      navigateTo('creator');
+      lucide.createIcons();
+    }
+
+    // MANEJO DE ENVÍO DE FORMULARIO -> LLAMADA A IA
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      const formData = {
+        subject: document.getElementById('cfg-subject').value.trim(),
+        topic: document.getElementById('cfg-topic').value.trim(),
+        level: document.getElementById('cfg-level').value,
+        grade: document.getElementById('cfg-grade').value.trim() || 'N/A',
+        count: document.getElementById('cfg-count').value,
+        duration: document.getElementById('cfg-duration').value,
+        language: document.getElementById('cfg-language').value,
+        intent: document.getElementById('cfg-intent').value,
+        customGoal: document.getElementById('cfg-custom-goal').value.trim(),
+        difficulty: document.getElementById('cfg-difficulty').value,
+        grouping: document.getElementById('cfg-grouping').value,
+        resources: document.getElementById('cfg-resources').value,
+        module: state.activeModule
+      };
+
+      if (state.activeModule === 'gamelab') {
+        formData.subType = document.getElementById('cfg-game-type').value;
+      } else if (state.activeModule === 'stations') {
+        formData.stationCount = document.getElementById('cfg-station-count').value;
+        formData.rotation = document.getElementById('cfg-station-rotation').value;
+        formData.mode = document.getElementById('cfg-station-mode').value;
+      } else if (state.activeModule === 'worksheets') {
+        formData.subType = document.getElementById('cfg-worksheet-type').value;
+      } else if (state.activeModule === 'starter') {
+        formData.subType = document.getElementById('cfg-starter-type').value;
+      }
+
+      state.currentFormData = formData;
+      navigateTo('loading');
+
+      try {
+        const generatedData = await callGeminiAPI(formData);
+        state.generatedResource = generatedData;
+        renderGeneratedResult(generatedData);
+        navigateTo('result');
+        showToast('¡Recurso pedagógico generado con éxito!', 'success');
+      } catch (err) {
+        console.error(err);
+        showToast('Error al conectar con el servidor de IA. Generando recurso de respaldo pedagógico...', 'info');
+        // Fallback pedagógico estructurado en caso de error de red
+        const fallbackData = createFallbackResource(formData);
+        state.generatedResource = fallbackData;
+        renderGeneratedResult(fallbackData);
+        navigateTo('result');
+      }
+    }
+
+    // LLAMADA A GEMINI FLASH API
+    async function callGeminiAPI(data) {
+      const apiKey = ""; // Canvas runtime key
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+      const systemPrompt = `
+Eres un equipo de expertos compuesto por Diseñadores Instruccionales EdTech y especialistas en Pedagogía de la iniciativa ProudEducator.
+Debes responder ÚNICAMENTE con un JSON estrictamente estructurado sin formato markdown adicional, adaptado al módulo solicitado.
+Idioma obligatorio del contenido: ${data.language}.
+      `;
+
+      let moduleInstructions = '';
+      
+      if (data.module === 'gamelab') {
+        moduleInstructions = `
+Genera un recurso de juego tipo '${data.subType}' sobre el tema '${data.topic}' para la materia '${data.subject}', Nivel: ${data.level}.
+Formato JSON requerido:
+{
+  "title": "Nombre creativo del juego",
+  "type": "gamelab",
+  "subType": "${data.subType}",
+  "learningGoal": "Objetivo pedagógico claro",
+  "materials": ["Material 1", "Material 2"],
+  "teacherGuide": {
+    "preparation": "Instrucciones de preparación",
+    "scoring": "Sistema de puntuación y logro",
+    "differentiation": "Recomendación para ritmos de aprendizaje"
+  },
+  "items": [
+    {
+      "id": 1,
+      "question": "Pregunta o concepto",
+      "options": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "correctIndex": 0,
+      "explanation": "Explicación educativa"
+    }
+  ]
+}
+Asegúrate de incluir exactamente entre 5 y 8 items/preguntas con opciones claras.
+        `;
+      } else if (data.module === 'stations') {
+        moduleInstructions = `
+Genera una secuencia de ${data.stationCount} Estaciones de Aprendizaje sobre '${data.topic}' para '${data.subject}', Nivel: ${data.level}.
+Formato JSON requerido:
+{
+  "title": "Título del Circuito de Estaciones",
+  "type": "stations",
+  "learningGoal": "Objetivo global del circuito",
+  "teacherGuide": {
+    "classroomSetup": "Cómo organizar el aula",
+    "timeManagement": "Distribución del tiempo por estación",
+    "evaluation": "Cómo evaluar el producto final"
+  },
+  "stationsList": [
+    {
+      "number": 1,
+      "name": "Nombre creativo estación 1",
+      "purpose": "Propósito específico",
+      "instructions": "Instrucciones para los alumnos",
+      "activity": "Detalle de la actividad a realizar",
+      "materials": ["Material 1", "Material 2"],
+      "reflectionQuestion": "Pregunta metacognitiva final"
+    }
+  ]
+}
+        `;
+      } else if (data.module === 'worksheets') {
+        moduleInstructions = `
+Genera una Ficha de Trabajo Interactiva formato '${data.subType}' sobre '${data.topic}' para '${data.subject}', Nivel: ${data.level}.
+Formato JSON requerido:
+{
+  "title": "Título de la Ficha Didáctica",
+  "type": "worksheets",
+  "subType": "${data.subType}",
+  "learningGoal": "Objetivo pedagógico",
+  "instructions": "Instrucciones para el estudiante",
+  "teacherGuide": {
+    "answerKey": "Clave de respuestas y criterios",
+    "pedagogicalTip": "Consejo de uso en el aula"
+  },
+  "activities": [
+    {
+      "id": 1,
+      "prompt": "Enunciado o pregunta",
+      "options": ["Opción 1", "Opción 2", "Opción 3"],
+      "correctAnswer": "Opción correcta o texto exacto",
+      "feedback": "Retroalimentación inmediata"
+    }
+  ]
+}
+Incluye entre 4 y 6 actividades.
+        `;
+      } else if (data.module === 'starter') {
+        moduleInstructions = `
+Genera una presentación 'Lesson Starter' de 5 diapositivas para iniciar la clase de '${data.topic}', materia '${data.subject}', estilo '${data.subType}'.
+Formato JSON requerido:
+{
+  "title": "Título Impactante del Inicio de Clase",
+  "type": "starter",
+  "learningGoal": "Objetivo del día",
+  "teacherGuide": {
+    "hookTip": "Cómo presentar la primera diapositiva",
+    "discussionGuide": "Preguntas clave para el debate"
+  },
+  "slides": [
+    {
+      "slideNumber": 1,
+      "title": "Título Diapositiva 1",
+      "subtitle": "Subtítulo o pregunta de apertura",
+      "body": "Poco texto, frase muy potente o reto rápido",
+      "actionPrompt": "Instrucción de lo que hacen los alumnos en este minuto"
+    }
+  ]
+}
+Genera exactamente 5 diapositivas estructuradas (Paso 1: Enganche, Paso 2: Saberes previos, Paso 3: Reto, Paso 4: Reflexión, Paso 5: Desafío del día).
+        `;
+      }
+
+      const promptText = `
+Configuración del usuario:
+- Asignatura: ${data.subject}
+- Tema: ${data.topic}
+- Nivel: ${data.level} (${data.grade})
+- Intención: ${data.intent}
+- Objetivo personalizado: ${data.customGoal || 'Ninguno'}
+- Dificultad: ${data.difficulty}
+
+${moduleInstructions}
+      `;
+
+      const payload = {
+        contents: [{ parts: [{ text: promptText }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        generationConfig: { responseMimeType: "application/json" }
+      };
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`API HTTP Error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      return JSON.parse(rawText);
+    }
+
+    // RECURSO FALLBACK PEDAGÓGICO EN CASO DE SIN CONEXIÓN
+    function createFallbackResource(data) {
+      if (data.module === 'gamelab') {
+        return {
+          title: `Desafío Express: ${data.topic}`,
+          type: "gamelab",
+          subType: data.subType || "Trivia",
+          learningGoal: `Reforzar los conceptos fundamentales de ${data.topic} en ${data.subject}.`,
+          materials: ["Dispositivo con pantalla o proyector", "Pizarra para puntos"],
+          teacherGuide: {
+            preparation: "Divida la clase en equipos equitativos de 3-4 integrantes.",
+            scoring: "Cada respuesta correcta otorga 100 puntos. Bonificación por rapidez.",
+            differentiation: "Proporcione pistas conceptuales para equipos que requieran soporte."
+          },
+          items: [
+            { id: 1, question: `¿Cuál es el concepto clave relacionado con ${data.topic}?`, options: ["Definición Principal A", "Opción Secundaria B", "Distractor C", "Distractor D"], correctIndex: 0, explanation: "Es la definición correcta acordada en el currículo." },
+            { id: 2, question: `¿En cuál de los siguientes casos se aplica ${data.topic}?`, options: ["Ejemplo Práctico 1", "Ejemplo Incorrecto 2", "Opción C", "Opción D"], correctIndex: 0, explanation: "Demuestra la aplicación directa en la vida diaria." },
+            { id: 3, question: `Verdadero o Falso: ${data.topic} se relaciona directamente con el desarrollo temático.`, options: ["Verdadero", "Falso"], correctIndex: 0, explanation: "Es totalmente verdadero según la fundamentación." }
+          ]
+        };
+      } else if (data.module === 'stations') {
+        return {
+          title: `Circuito de Aprendizaje: ${data.topic}`,
+          type: "stations",
+          learningGoal: `Explorar ${data.topic} desde múltiples perspectivas y dimensiones.`,
+          teacherGuide: {
+            classroomSetup: "Organice 4 mesas separadas en el aula con sus respectivos materiales.",
+            timeManagement: "10 minutos por estación con un timbre suave para la rotación.",
+            evaluation: "Recoger la ficha de registro de cada equipo al finalizar el circuito."
+          },
+          stationsList: [
+            { number: 1, name: "Estación 1: Investigadores (Lectura)", purpose: "Analizar el texto clave.", instructions: "Lean el extracto y resuman 3 ideas principales.", activity: "Elaborar un mini mapa conceptual en el papelógrafo.", materials: ["Texto impreso", "Marcadores"], reflectionQuestion: "¿Qué fue lo más sorprendente del texto?" },
+            { number: 2, name: "Estación 2: Creadores (Aplicación)", purpose: "Diseñar una solución gráfica.", instructions: "Creen un diagrama que explique el proceso.", activity: "Dibujar una secuencia paso a paso.", materials: ["Hojas blancas", "Colores"], reflectionQuestion: "¿Cómo explicarían este dibujo a un niño pequeño?" },
+            { number: 3, name: "Estación 3: Debatientes (Análisis)", purpose: "Discutir posturas y argumentos.", instructions: "Respondan las 2 preguntas de debate adjuntas.", activity: "Discusión guiada de 5 minutos.", materials: ["Tarjetas de debate"], reflectionQuestion: "¿Cambiaste de opinión tras escuchar a tus compañeros?" }
+          ]
+        };
+      } else if (data.module === 'starter') {
+        return {
+          title: `Descubriendo ${data.topic}`,
+          type: "starter",
+          learningGoal: `Despertar la curiosidad e introducir ${data.topic}.`,
+          teacherGuide: { hookTip: "Muestre la diapositiva 1 en silencio durante 30 segundos antes de hablar.", discussionGuide: "Dé la palabra a 3 estudiantes con respuestas divergentes." },
+          slides: [
+            { slideNumber: 1, title: `¿Qué sabemos sobre ${data.topic}?`, subtitle: "Pregunta del Día", body: "¿Te has preguntado cómo afecta este fenómeno a nuestra vida cotidiana?", actionPrompt: "Piensa en silencio durante 30 segundos." },
+            { slideNumber: 2, title: "El Reto Misterioso", subtitle: "Saberes Previos", body: "Observa estos 3 elementos en la pantalla. ¿Qué tienen en común?", actionPrompt: "Comenta con tu compañero de al lado." },
+            { slideNumber: 3, title: "Conexión Real", subtitle: "Contexto", body: `${data.topic} es fundamental en la materia de ${data.subject}.`, actionPrompt: "Escribe 1 palabra clave en una nota adhesiva." }
+          ]
+        };
+      } else {
+        return {
+          title: `Ficha Práctica: ${data.topic}`,
+          type: "worksheets",
+          subType: data.subType || "Completar",
+          learningGoal: `Validar la comprensión de ${data.topic}.`,
+          instructions: "Lee atentamente cada enunciado y selecciona o escribe la respuesta correcta.",
+          teacherGuide: { answerKey: "Revisar conjuntamente al finalizar los 15 minutos.", pedagogicalTip: "Permita la auto-corrección con bolígrafo verde." },
+          activities: [
+            { id: 1, prompt: `¿Cuál es el elemento principal de ${data.topic}?`, options: ["Opción Correcta", "Distractor A", "Distractor B"], correctAnswer: "Opción Correcta", feedback: "¡Excelente! Has identificado el núcleo del tema." },
+            { id: 2, prompt: `Indica la afirmación correcta respecto a ${data.topic}:`, options: ["Respuesta Válida", "Respuesta Errónea"], correctAnswer: "Respuesta Válida", feedback: "¡Correcto! Demuestras buen dominio." }
+          ]
+        };
+      }
+    }
+
+    // RENDERING DE RESULTADOS EN LA INTERFAZ
+    function renderGeneratedResult(res) {
+      document.getElementById('res-title-display').innerText = res.title || 'Recurso Pedagógico';
+      const badge = document.getElementById('res-badge-type');
+      
+      badge.innerText = res.type ? res.type.toUpperCase() : 'RECURSO';
+      if (res.type === 'gamelab') badge.className = "px-3 py-1 rounded-full text-xs font-black uppercase text-white bg-brand-coral";
+      else if (res.type === 'stations') badge.className = "px-3 py-1 rounded-full text-xs font-black uppercase text-white bg-brand-teal";
+      else if (res.type === 'worksheets') badge.className = "px-3 py-1 rounded-full text-xs font-black uppercase text-white bg-brand-sky";
+      else if (res.type === 'starter') badge.className = "px-3 py-1 rounded-full text-xs font-black uppercase text-white bg-brand-lavender";
+
+      // Renderizar Guía Docente
+      const guideContainer = document.getElementById('teacher-guide-details');
+      const tg = res.teacherGuide || {};
+      guideContainer.innerHTML = `
+        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700">
+          <h4 class="font-bold text-teal-300 mb-1">🎯 Objetivo de Aprendizaje</h4>
+          <p>${res.learningGoal || 'No especificado'}</p>
+        </div>
+        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700">
+          <h4 class="font-bold text-sky-300 mb-1">📋 Preparación / Setup</h4>
+          <p>${tg.preparation || tg.classroomSetup || tg.hookTip || 'Listo para presentar.'}</p>
+        </div>
+        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700">
+          <h4 class="font-bold text-purple-300 mb-1">⏱️ Gestión del Tiempo y Grupos</h4>
+          <p>${tg.timeManagement || tg.scoring || tg.discussionGuide || 'Adaptable a la clase.'}</p>
+        </div>
+        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700">
+          <h4 class="font-bold text-rose-300 mb-1">💡 Diferenciación Pedagógica</h4>
+          <p>${tg.differentiation || tg.evaluation || tg.pedagogicalTip || 'Inclusivo para todos los niveles.'}</p>
+        </div>
+      `;
+
+      // Renderizar Vista Previa Interactiva según el tipo
+      const container = document.getElementById('tab-interactive-content');
+      container.innerHTML = '';
+
+      if (res.type === 'gamelab') {
+        renderGameLabInteractive(res, container);
+      } else if (res.type === 'stations') {
+        renderStationsView(res, container);
+      } else if (res.type === 'worksheets') {
+        renderWorksheetInteractive(res, container);
+      } else if (res.type === 'starter') {
+        renderStarterSlidesView(res, container);
+      }
+
+      switchResultTab('interactive');
+      lucide.createIcons();
+    }
+
+    // VISTA PREVIA INTERACTIVA: GAME LAB
+    function renderGameLabInteractive(res, container) {
+      if (res.subType && res.subType.includes('Ruleta')) {
+        // RENDER RULETA INTERACTIVA
+        container.innerHTML = `
+          <div class="max-w-md mx-auto text-center space-y-6">
+            <h3 class="text-xl font-bold text-slate-800">🎡 Ruleta de Preguntas Interactiva</h3>
+            <div class="relative w-64 h-64 mx-auto">
+              <div id="wheel-disc" class="w-full h-full rounded-full border-8 border-brand-coral bg-gradient-to-tr from-amber-300 via-rose-300 to-sky-300 shadow-xl flex items-center justify-center transition-transform duration-[3000ms] ease-out">
+                <span class="font-black text-slate-800 text-lg">¡GIRA LA RULETA!</span>
+              </div>
+              <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 text-brand-coral">
+                <i data-lucide="map-pin" class="w-8 h-8 fill-current"></i>
+              </div>
+            </div>
+            <button onclick="spinWheel()" class="px-6 py-3 bg-brand-coral text-white font-black rounded-2xl shadow-lg hover:scale-105 transition">
+              ¡Girar Ahora!
+            </button>
+            <div id="wheel-result-card" class="hidden p-5 bg-rose-50 border border-rose-200 rounded-2xl text-left space-y-3">
+              <span id="wheel-q-num" class="text-xs font-bold text-brand-coral">PREGUNTA</span>
+              <p id="wheel-q-text" class="font-bold text-slate-800"></p>
+              <div id="wheel-options" class="space-y-2"></div>
+            </div>
+          </div>
+        `;
+      } else {
+        // RENDER TRIVIA / DESAFÍO MULTI-OPCIÓN
+        let currentItem = 0;
+        let score = 0;
+
+        window.gameLabState = { items: res.items || [], current: 0, score: 0 };
+
+        container.innerHTML = `
+          <div class="max-w-xl mx-auto bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-6">
+            <div class="flex justify-between items-center text-xs font-bold text-slate-500">
+              <span id="game-progress">Pregunta 1 de ${res.items ? res.items.length : 1}</span>
+              <span id="game-score" class="text-brand-teal text-sm">Puntos: 0</span>
+            </div>
+            
+            <div id="game-question-box" class="space-y-4">
+              <h3 id="game-question-title" class="text-lg font-bold text-slate-900">${res.items?.[0]?.question || 'Pregunta de juego'}</h3>
+              <div id="game-options-container" class="space-y-2.5">
+                ${(res.items?.[0]?.options || []).map((opt, i) => `
+                  <button onclick="submitGameAnswer(${i})" class="w-full text-left p-3.5 bg-white hover:bg-sky-50 border border-slate-200 rounded-2xl font-semibold text-sm transition">
+                    ${opt}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+            <div id="game-feedback" class="hidden p-4 rounded-2xl text-sm font-medium"></div>
+          </div>
+        `;
+      }
+    }
+
+    // ACCIÓN: RESPONDER TRIVIA EN VIVO
+    function submitGameAnswer(selectedIdx) {
+      const st = window.gameLabState;
+      if (!st || !st.items[st.current]) return;
+
+      const item = st.items[st.current];
+      const feedbackEl = document.getElementById('game-feedback');
+      feedbackEl.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800');
+
+      if (selectedIdx === item.correctIndex) {
+        st.score += 100;
+        confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+        feedbackEl.classList.add('bg-emerald-100', 'text-emerald-800');
+        feedbackEl.innerHTML = `<strong>¡Correcto! +100 pts 🎉</strong><br>${item.explanation || ''}`;
+      } else {
+        feedbackEl.classList.add('bg-rose-100', 'text-rose-800');
+        feedbackEl.innerHTML = `<strong>Incorrecto.</strong><br>La respuesta correcta era: <em>${item.options[item.correctIndex]}</em>.`;
+      }
+
+      document.getElementById('game-score').innerText = `Puntos: ${st.score}`;
+
+      setTimeout(() => {
+        st.current++;
+        if (st.current < st.items.length) {
+          const nextItem = st.items[st.current];
+          document.getElementById('game-progress').innerText = `Pregunta ${st.current + 1} de ${st.items.length}`;
+          document.getElementById('game-question-title').innerText = nextItem.question;
+          document.getElementById('game-options-container').innerHTML = nextItem.options.map((opt, i) => `
+            <button onclick="submitGameAnswer(${i})" class="w-full text-left p-3.5 bg-white hover:bg-sky-50 border border-slate-200 rounded-2xl font-semibold text-sm transition">
+              ${opt}
+            </button>
+          `).join('');
+          feedbackEl.classList.add('hidden');
+        } else {
+          document.getElementById('game-question-box').innerHTML = `
+            <div class="text-center py-6 space-y-4">
+              <div class="w-16 h-16 mx-auto bg-amber-100 rounded-full flex items-center justify-center text-amber-500">
+                <i data-lucide="trophy" class="w-10 h-10"></i>
+              </div>
+              <h3 class="text-2xl font-extrabold text-slate-900">¡Juego Completado!</h3>
+              <p class="text-slate-600">Puntaje Final: <strong>${st.score} Puntos</strong></p>
+              <button onclick="renderGeneratedResult(state.generatedResource)" class="px-6 py-2.5 bg-brand-navy text-white rounded-xl font-bold text-xs">Jugar de nuevo</button>
+            </div>
+          `;
+          lucide.createIcons();
+        }
+      }, 2000);
+    }
+
+    // ACCIÓN: GIRAR RULETA
+    function spinWheel() {
+      const wheel = document.getElementById('wheel-disc');
+      const randomDegree = 1440 + Math.floor(Math.random() * 360);
+      wheel.style.transform = `rotate(${randomDegree}deg)`;
+
+      setTimeout(() => {
+        confetti({ particleCount: 50, spread: 70 });
+        const resCard = document.getElementById('wheel-result-card');
+        resCard.classList.remove('hidden');
+        
+        const items = state.generatedResource.items || [];
+        const randomQ = items[Math.floor(Math.random() * items.length)] || { question: "¿Qué fue lo más importante que aprendiste hoy?", options: ["Opción A", "Opción B"] };
+        
+        document.getElementById('wheel-q-text').innerText = randomQ.question;
+        document.getElementById('wheel-options').innerHTML = (randomQ.options || []).map(o => `
+          <div class="p-2 bg-white rounded-xl text-xs font-semibold border border-rose-100">${o}</div>
+        `).join('');
+      }, 3100);
+    }
+
+    // VISTA PREVIA: LEARNING STATIONS
+    function renderStationsView(res, container) {
+      const stations = res.stationsList || [];
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="bg-teal-50 border border-teal-200 p-4 rounded-2xl flex items-center justify-between">
+            <span class="text-xs font-bold text-brand-teal uppercase tracking-wider">Secuencia de Rotación (${stations.length} Estaciones)</span>
+            <span class="text-xs bg-brand-teal text-white px-3 py-1 rounded-full font-bold">Tiempo sugerido: 10 min c/u</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${stations.map((st, i) => `
+              <div class="bg-white rounded-2xl border-2 border-teal-500/20 p-5 shadow-sm hover:shadow-md transition space-y-4 relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-brand-teal text-white font-black text-xs px-3 py-1 rounded-bl-xl">
+                  ESTACIÓN ${st.number || i + 1}
+                </div>
+                <h4 class="font-extrabold text-slate-900 text-base pr-16">${st.name}</h4>
+                
+                <div class="text-xs space-y-2 text-slate-600">
+                  <p><strong>🎯 Propósito:</strong> ${st.purpose}</p>
+                  <p><strong>📋 Indicación:</strong> ${st.instructions}</p>
+                  <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <strong>💡 Actividad:</strong> ${st.activity}
+                  </div>
+                  <p class="text-brand-teal font-semibold"><strong>🤔 Reflexión:</strong> ${st.reflectionQuestion || '¿Qué aprendiste?'}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // VISTA PREVIA: INTERACTIVE WORKSHEET
+    function renderWorksheetInteractive(res, container) {
+      const acts = res.activities || [];
+      container.innerHTML = `
+        <div class="max-w-2xl mx-auto space-y-6">
+          <div class="border-b pb-4">
+            <h3 class="text-xl font-black text-slate-900">${res.title}</h3>
+            <p class="text-xs text-slate-500 mt-1">Instrucciones: ${res.instructions || 'Responde las actividades a continuación.'}</p>
+          </div>
+
+          <form id="worksheet-form" onsubmit="gradeWorksheet(event)" class="space-y-6">
+            ${acts.map((act, i) => `
+              <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                <label class="block font-bold text-slate-800 text-sm">${i + 1}. ${act.prompt}</label>
+                ${act.options ? `
+                  <div class="space-y-2">
+                    ${act.options.map((opt, oIdx) => `
+                      <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-sky-50">
+                        <input type="radio" name="act_${i}" value="${opt}" class="text-brand-sky focus:ring-brand-sky">
+                        <span>${opt}</span>
+                      </label>
+                    `).join('')}
+                  </div>
+                ` : `
+                  <input type="text" name="act_${i}" placeholder="Escribe tu respuesta aquí..." class="w-full px-4 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-sky">
+                `}
+              </div>
+            `).join('')}
+
+            <button type="submit" class="w-full py-3 bg-brand-sky hover:bg-sky-700 text-white font-bold rounded-2xl shadow transition">
+              Comprobar Respuestas de la Ficha
+            </button>
+          </form>
+          <div id="worksheet-grade-result" class="hidden p-4 rounded-2xl font-bold text-center"></div>
+        </div>
+      `;
+    }
+
+    // COMPROBAR FICHA INTERACTIVA
+    function gradeWorksheet(e) {
+      e.preventDefault();
+      confetti({ particleCount: 50, spread: 60 });
+      const resEl = document.getElementById('worksheet-grade-result');
+      resEl.classList.remove('hidden');
+      resEl.className = "p-4 rounded-2xl font-bold text-center bg-emerald-100 text-emerald-800 border border-emerald-300";
+      resEl.innerText = "¡Ficha completada exitosamente! Respuestas registradas para revisión.";
+    }
+
+    // VISTA PREVIA: LESSON STARTER (SLIDESHOW)
+    function renderStarterSlidesView(res, container) {
+      const slides = res.slides || [];
+      window.starterSlidesState = { slides: slides, current: 0 };
+
+      container.innerHTML = `
+        <div class="max-w-3xl mx-auto space-y-4">
+          <!-- Slide Viewer Box -->
+          <div id="slide-box" class="aspect-video bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-2xl flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute top-4 right-6 text-xs font-bold text-purple-300 bg-white/10 px-3 py-1 rounded-full">
+              Diapositiva <span id="slide-num-disp">1</span> de ${slides.length}
+            </div>
+
+            <div class="space-y-4">
+              <span id="slide-subtitle-disp" class="text-xs font-extrabold uppercase tracking-widest text-brand-teal">
+                ${slides[0]?.subtitle || 'Apertura'}
+              </span>
+              <h2 id="slide-title-disp" class="text-2xl sm:text-4xl font-black leading-tight text-white">
+                ${slides[0]?.title || 'Título'}
+              </h2>
+              <p id="slide-body-disp" class="text-sm sm:text-base text-slate-200 font-medium leading-relaxed max-w-xl">
+                ${slides[0]?.body || ''}
+              </p>
+            </div>
+
+            <div class="bg-white/10 border border-white/20 p-3 rounded-2xl text-xs text-amber-200 font-semibold flex items-center gap-2">
+              <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+              <span id="slide-action-disp">Acción: ${slides[0]?.actionPrompt || 'Atención al frente'}</span>
+            </div>
+          </div>
+
+          <!-- Navegación de Diapositivas -->
+          <div class="flex justify-between items-center px-2">
+            <button onclick="navSlide(-1)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-xl font-bold text-xs text-slate-700 transition flex items-center gap-1">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i> Anterior
+            </button>
+            <div id="slide-dots" class="flex space-x-2">
+              ${slides.map((_, idx) => `
+                <span class="w-3 h-3 rounded-full ${idx === 0 ? 'bg-brand-lavender' : 'bg-slate-300'}"></span>
+              `).join('')}
+            </div>
+            <button onclick="navSlide(1)" class="px-4 py-2 bg-brand-lavender hover:bg-purple-700 text-white rounded-xl font-bold text-xs transition flex items-center gap-1">
+              Siguiente <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // NAVEGAR DIAPOSITIVAS
+    function navSlide(dir) {
+      const st = window.starterSlidesState;
+      if (!st) return;
+
+      st.current += dir;
+      if (st.current < 0) st.current = 0;
+      if (st.current >= st.slides.length) st.current = st.slides.length - 1;
+
+      const slide = st.slides[st.current];
+      document.getElementById('slide-num-disp').innerText = st.current + 1;
+      document.getElementById('slide-subtitle-disp').innerText = slide.subtitle || '';
+      document.getElementById('slide-title-disp').innerText = slide.title || '';
+      document.getElementById('slide-body-disp').innerText = slide.body || '';
+      document.getElementById('slide-action-disp').innerText = `Acción: ${slide.actionPrompt || 'Atención al frente'}`;
+
+      const dots = document.getElementById('slide-dots').children;
+      for (let i = 0; i < dots.length; i++) {
+        dots[i].className = `w-3 h-3 rounded-full ${i === st.current ? 'bg-brand-lavender' : 'bg-slate-300'}`;
+      }
+    }
+
+    // CAMBIO DE PESTAÑAS RESULTADO
+    function switchResultTab(tab) {
+      const btnInt = document.getElementById('tab-interactive-btn');
+      const btnTea = document.getElementById('tab-teacher-btn');
+      const cntInt = document.getElementById('tab-interactive-content');
+      const cntTea = document.getElementById('tab-teacher-content');
+
+      if (tab === 'interactive') {
+        btnInt.className = "py-3 px-4 text-sm font-bold border-b-2 border-brand-teal text-brand-teal flex items-center gap-2";
+        btnTea.className = "py-3 px-4 text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2";
+        cntInt.classList.remove('hidden');
+        cntTea.classList.add('hidden');
+      } else {
+        btnTea.className = "py-3 px-4 text-sm font-bold border-b-2 border-brand-teal text-brand-teal flex items-center gap-2";
+        btnInt.className = "py-3 px-4 text-sm font-bold text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2";
+        cntTea.classList.remove('hidden');
+        cntInt.classList.add('hidden');
+      }
+    }
+
+    // BOTONES DE ACCIÓN SOBRE EL RECURSO
+    function editResourceText() {
+      const newTitle = prompt("Modificar título del recurso:", state.generatedResource.title);
+      if (newTitle) {
+        state.generatedResource.title = newTitle;
+        document.getElementById('res-title-display').innerText = newTitle;
+        showToast('Título editado correctamente', 'success');
+      }
+    }
+
+    function regenerateResource() {
+      if (state.currentFormData) {
+        navigateTo('loading');
+        setTimeout(() => handleFormSubmit({ preventDefault: () => {} }), 500);
+      }
+    }
+
+    function differentiateResource() {
+      showToast('Ajustando nivel pedagógico (+ Dificultad / Adaptación)...', 'info');
+      setTimeout(() => {
+        state.generatedResource.title += " (Versión Adaptada)";
+        renderGeneratedResult(state.generatedResource);
+        showToast('Recurso diferenciado exitosamente', 'success');
+      }, 1000);
+    }
+
+    // GUARDAR EN BIBLIOTECA LOCAL
+    function saveToLibrary() {
+      if (!state.generatedResource) return;
+      const itemToSave = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString(),
+        subject: state.currentFormData?.subject || 'General',
+        level: state.currentFormData?.level || 'Secundaria',
+        resource: state.generatedResource
+      };
+      
+      state.library.unshift(itemToSave);
+      localStorage.setItem('proud_tools_library', JSON.stringify(state.library));
+      updateLibraryBadge();
+      showToast('Recurso guardado en tu Biblioteca Local', 'success');
+    }
+
+    function updateLibraryBadge() {
+      document.getElementById('library-badge').innerText = state.library.length;
+    }
+
+    // RENDERIZAR BIBLIOTECA
+    function renderLibrary() {
+      const grid = document.getElementById('library-grid');
+      if (state.library.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12 space-y-3 bg-white rounded-3xl border border-slate-200">
+            <i data-lucide="folder-open" class="w-12 h-12 text-slate-300 mx-auto"></i>
+            <h3 class="font-bold text-slate-700">No tienes recursos guardados todavía</h3>
+            <p class="text-xs text-slate-400">Genera recursos en cualquiera de los 4 módulos y guárdalos aquí.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      grid.innerHTML = state.library.map(item => `
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                ${item.resource.type || 'RECURSO'}
+              </span>
+              <span class="text-[10px] text-slate-400">${item.date}</span>
+            </div>
+            <h4 class="font-bold text-slate-900 text-base mb-1">${item.resource.title}</h4>
+            <p class="text-xs text-slate-500">${item.subject} &bull; ${item.level}</p>
+          </div>
+          <div class="flex items-center gap-2 pt-2 border-t">
+            <button onclick="loadLibraryItem(${item.id})" class="flex-1 py-2 bg-brand-sky hover:bg-sky-700 text-white font-bold rounded-xl text-xs transition">
+              Abrir
+            </button>
+            <button onclick="deleteLibraryItem(${item.id})" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function loadLibraryItem(id) {
+      const item = state.library.find(x => x.id === id);
+      if (item) {
+        state.generatedResource = item.resource;
+        renderGeneratedResult(item.resource);
+        navigateTo('result');
+      }
+    }
+
+    function deleteLibraryItem(id) {
+      state.library = state.library.filter(x => x.id !== id);
+      localStorage.setItem('proud_tools_library', JSON.stringify(state.library));
+      updateLibraryBadge();
+      renderLibrary();
+      showToast('Recurso eliminado de la biblioteca', 'info');
+    }
+
+    function clearLibrary() {
+      if (confirm('¿Estás seguro de vaciar toda tu biblioteca guardada?')) {
+        state.library = [];
+        localStorage.removeItem('proud_tools_library');
+        updateLibraryBadge();
+        renderLibrary();
+      }
+    }
+
+    function filterLibrary() {
+      const query = document.getElementById('library-search').value.toLowerCase();
+      const filtered = state.library.filter(item => 
+        item.resource.title.toLowerCase().includes(query) ||
+        item.subject.toLowerCase().includes(query)
+      );
+      const grid = document.getElementById('library-grid');
+      if (filtered.length === 0) {
+        grid.innerHTML = `<p class="col-span-full text-center text-slate-400 text-xs py-8">No se encontraron resultados.</p>`;
+        return;
+      }
+      grid.innerHTML = filtered.map(item => `
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+          <h4 class="font-bold text-slate-900 text-base">${item.resource.title}</h4>
+          <button onclick="loadLibraryItem(${item.id})" class="w-full py-2 bg-brand-sky text-white font-bold rounded-xl text-xs">Abrir</button>
+        </div>
+      `).join('');
+    }
+
+    // EXPORTACIÓN A PDF CON JSPDF
+    function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const res = state.generatedResource;
+      if (!res) return;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.setTextColor(30, 58, 138); // Brand Navy
+      doc.text("PROUD TOOLS - CLASSROOM CREATOR AI", 14, 20);
+
+      doc.setFontSize(10);
+      doc.setTextColor(100, 116, 139);
+      doc.text("ProudEducator | Educación con propósito", 14, 26);
+      doc.line(14, 28, 196, 28);
+
+      doc.setFontSize(14);
+      doc.setTextColor(15, 23, 42);
+      doc.text(res.title || "Recurso Pedagógico", 14, 38);
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Objetivo: ${res.learningGoal || 'N/A'}`, 14, 46);
+
+      let yPos = 58;
+      doc.setFont("helvetica", "bold");
+      doc.text("CONTENIDO Y DESARROLLO DEL RECURSO:", 14, yPos);
+      yPos += 8;
+      doc.setFont("helvetica", "normal");
+
+      if (res.items) {
+        res.items.forEach((item, i) => {
+          if (yPos > 270) { doc.addPage(); yPos = 20; }
+          doc.text(`${i + 1}. ${item.question}`, 14, yPos);
+          yPos += 6;
+          (item.options || []).forEach(opt => {
+            doc.text(`   - ${opt}`, 14, yPos);
+            yPos += 5;
+          });
+          yPos += 3;
+        });
+      } else if (res.stationsList) {
+        res.stationsList.forEach(st => {
+          if (yPos > 260) { doc.addPage(); yPos = 20; }
+          doc.setFont("helvetica", "bold");
+          doc.text(`Estación ${st.number}: ${st.name}`, 14, yPos);
+          yPos += 6;
+          doc.setFont("helvetica", "normal");
+          doc.text(`Actividad: ${st.activity}`, 14, yPos);
+          yPos += 10;
+        });
+      } else if (res.slides) {
+        res.slides.forEach(sl => {
+          if (yPos > 260) { doc.addPage(); yPos = 20; }
+          doc.setFont("helvetica", "bold");
+          doc.text(`Diapositiva ${sl.slideNumber}: ${sl.title}`, 14, yPos);
+          yPos += 6;
+          doc.setFont("helvetica", "normal");
+          doc.text(`Contenido: ${sl.body}`, 14, yPos);
+          yPos += 10;
+        });
+      }
+
+      doc.save(`${res.title || 'Recurso_ProudEducator'}.pdf`);
+      showToast('PDF generado e iniciado descarga', 'success');
+    }
+
+    // UTILIDAD DE NOTIFICACIONES TOAST
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      let bgColor = "bg-slate-900 text-white";
+      if (type === 'success') bgColor = "bg-emerald-600 text-white";
+      if (type === 'info') bgColor = "bg-brand-navy text-white";
+
+      toast.className = `${bgColor} px-4 py-3 rounded-2xl shadow-xl text-xs font-bold flex items-center justify-between gap-3 transform transition duration-300 translate-y-2 opacity-0`;
+      toast.innerHTML = `<span>${msg}</span>`;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 50);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
